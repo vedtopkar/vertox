@@ -1,3 +1,6 @@
+# Ignore user-created path file
+vertox/path.py
+
 # PyCharm local files
 .idea/
 
