@@ -1,6 +1,6 @@
 # VERTOX
 
-__Ve__d's __R__NA __To__olbo__x__
+**Ve**d's **R**NA **To**olbo**x**
 
 This is a repo of scripts that I have written for manipulating primary sequence and secondary structure information.
 
