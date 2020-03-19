@@ -2,57 +2,36 @@ import subprocess
 import random
 from Bio.pairwise2 import format_alignment
 from Bio import pairwise2
+from .secondary_structure import find_pairs, find_helices, disrupt_helix_flip, recover_helix_flip
+from .score_structure_perturbations import compute_bp_disruption, compute_bp_recovery
+
+def generate_mutate_rescue_library(sequence, structure, gc_rescue=True, iterations=500, stochastic_results=1):
+    # Generate helix variants
+    pairs = find_pairs(structure)
+    helices = find_helices(pairs)
+
+    for helix in helices:
+        generate_helix_variants(sequence, structure, helix, iterations=iterations, gc_rescue=gc_rescue)
+
+
+def generate_mutate_rescue_helix(sequence, structure, helix, gc_rescue=True, iterations=500, stochastic_results=1):
+    # Generate flipped disruption and rescue sequences
+    left_flipped = disrupt_helix_flip(sequence, helix, side='left')
+    right_flipped = disrupt_helix_flip(sequence, helix, side='right')
+    recovery_helix_flipped = recover_helix_flip(sequence, helix)
+
+
+    disruption_lower_bound = max(compute_bp_disruption(find_pairs(structure), find_pairs(left_flipped), helix),
+                                 compute_bp_disruption(find_pairs(structure), find_pairs(right_flipped), helix))
+
+
 
 
 def generate_helix_flips(sequence, structure, helix, gc_rescue=True, scramble_iterations=500):
     print("Generating helix variants for\nsequence: {}\nstructure:{}\nhelix: {}".format(sequence, structure, helix))
 
-    left_indices = [helix[0][0], helix[-1][0]]
-    left_original = sequence[left_indices[0]:left_indices[1] + 1]
-    right_indices = [helix[-1][1], helix[0][1]]
-    right_original = sequence[right_indices[0]:right_indices[1] + 1]
-
-    # Flip the left half of the helix
-    left_flipped = list(sequence)
-    left_flipped[left_indices[0]:left_indices[1] + 1] = left_flipped[left_indices[0]:left_indices[1] + 1][::-1]
-    left_flipped = ''.join(left_flipped)
-
-    alignments = pairwise2.align.globalxx(sequence, left_flipped)
-    print(format_alignment(*alignments[0]))
-
-    # Flip the right half of the helix
-    right_flipped = list(sequence)
-    right_flipped[right_indices[0]:right_indices[1] + 1] = right_flipped[right_indices[0]:right_indices[1] + 1][::-1]
-    right_flipped = ''.join(right_flipped)
-
     alignments = pairwise2.align.globalxx(sequence, right_flipped)
     print(format_alignment(*alignments[0]))
-
-    # Flip both sides of the helix
-    # optionally, GU pairs => CG pairs for extra stability
-    rescued = list(sequence)
-    rescued[right_indices[0]:right_indices[1] + 1] = rescued[right_indices[0]:right_indices[1] + 1][::-1]
-    rescued[left_indices[0]:left_indices[1] + 1] = rescued[left_indices[0]:left_indices[1] + 1][::-1]
-
-    for pair in helix:
-        left = pair[0]
-        right = pair[1]
-        if gc_rescue:
-            if [rescued[left], rescued[right]] == ['G', 'U']:
-                rescued[left] = 'G'
-                rescued[right] = 'C'
-
-            elif [rescued[left], rescued[right]] == ['U', 'G']:
-                rescued[left] = 'C'
-                rescued[right] = 'G'
-    rescued = ''.join(rescued)
-
-    alignments = pairwise2.align.globalxx(sequence, rescued)
-    print(format_alignment(*alignments[0]))
-
-    print('left flipped:\n{}\nright flipped:\n{}\nboth flipped\n{}'.format(left_flipped,
-                                                                           right_flipped,
-                                                                           rescued))
 
     results = {'sequence': sequence,
                'structure': structure,
