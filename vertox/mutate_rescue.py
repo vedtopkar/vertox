@@ -27,6 +27,8 @@ def generate_mutate_rescue_helix(sequence, structure, helix, gc_rescue=True, ite
 
 
 
+
+
 def generate_helix_flips(sequence, structure, helix, gc_rescue=True, scramble_iterations=500):
     print("Generating helix variants for\nsequence: {}\nstructure:{}\nhelix: {}".format(sequence, structure, helix))
 
