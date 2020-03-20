@@ -1,0 +1,3 @@
+[submodule "draw_rna"]
+	path = draw_rna
+	url = https://github.com/DasLab/draw_rna.git
