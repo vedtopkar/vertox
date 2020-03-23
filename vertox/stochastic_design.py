@@ -1,7 +1,7 @@
 from .linearfold import linearfold
 import random
 import multiprocessing
-from .score_structure_perturbations import compute_bp_disruption, compute_bp_recovery
+from .score_structure_perturbations import compute_bp_disruption, compute_edit_distance
 from .secondary_structure import find_pairs, find_helices
 
 import nwalign3 as nw
@@ -55,7 +55,7 @@ def stochastic_helix_disruption(sequence, structure, helix, total_iterations):
     # Then we score the disruption of each
     # And also the degree to which the rest of the structure remains intact
     WT_pairs = find_pairs(structure)
-    scrambled_disruption_scores = [compute_bp_disruption(WT_pairs, find_pairs(s), helix) for s in scrambled_structures]
+    scrambled_edit_distances = [compute_edit_distance(sequence, s) for s in scrambled_candidates]
     scrambled_recovery_scores = [compute_bp_recovery(WT_pairs, find_pairs(s), ignore_helix=helix) for s in
                                  scrambled_structures]
 
@@ -64,11 +64,11 @@ def stochastic_helix_disruption(sequence, structure, helix, total_iterations):
                                      'scrambled_disruption_structure': scramble_struct,
                                      'scrambled_disruption_energy': scramble_energy,
                                      'scrambled_alignment_score': alignment_score,
-                                     'scrambled_disruption_score': scramble_disruption,
+                                     'scrambled_edit_score': scramble_disruption,
                                      'scrambled_recovery_score': scramble_recovery}
-                                    for scramble_seq, scramble_struct, scramble_energy, alignment_score, scramble_disruption, scramble_recovery
+                                    for scramble_seq, scramble_struct, scramble_energy, alignment_score, scrambled_edit_distance, scramble_recovery
                                     in zip(scrambled_candidates, scrambled_structures, scrambled_energies, alignment_scores,
-                                           scrambled_disruption_scores, scrambled_recovery_scores)]
+                                           scrambled_edit_distances, scrambled_recovery_scores)]
 
     scrambled_disruption_results = pd.DataFrame(scrambled_disruption_results)
     scrambled_disruption_results.sort_values(by=['scrambled_disruption_score', 'scrambled_recovery_score'],

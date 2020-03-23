@@ -41,10 +41,17 @@ def compute_bp_recovery(pairs1, pairs2, ignore_helix=None, specific_helix=None, 
             recovered -= false_positive_penalty
     return recovered / total_bps
 
-def compute_sequence_divergence(sequence1, sequence2):
+def compute_edit_distance(sequence1, sequence2):
     """
     Given two sequences
     returns the edit distance
     """
-    r = regex.compile(r"{}(e)".format(sequence1))
-    return r.fullmatch(sequence2)
+    assert len(sequence1) == len(sequence2)
+
+    edit_distance = 0
+    for i in range(len(sequence1)):
+        if sequence1[i] != sequence2[i]:
+            edit_distance += 1
+
+    return edit_distance
+
