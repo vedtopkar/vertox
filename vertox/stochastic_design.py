@@ -36,8 +36,11 @@ def stochastic_helix_remodeling(sequence, structure, helix, total_iterations):
     folded_scrambles = p_map(linearfold, scrambled_candidates)
     scrambled_structures, scrambled_energies = list(zip(*folded_scrambles))
 
+
+
     # Align each variant with the WT sequence and save the alignment scores
     alignment_scores = p_map(nw.score_alignment, [sequence]*len(scrambled_candidates), scrambled_candidates)
+
 
     return scrambled_candidates, scrambled_structures, scrambled_energies, alignment_scores
 

@@ -1,3 +1,5 @@
+import regex
+
 def compute_bp_disruption(pairs1, pairs2, helix):
     """
     Counts up the number of bps that are disrupted
@@ -38,3 +40,11 @@ def compute_bp_recovery(pairs1, pairs2, ignore_helix=None, specific_helix=None, 
         elif pairs1[i] is None and pairs2[i] is not None:  # False positive
             recovered -= false_positive_penalty
     return recovered / total_bps
+
+def compute_sequence_divergence(sequence1, sequence2):
+    """
+    Given two sequences
+    returns the edit distance
+    """
+    r = regex.compile(r"{}(e)".format(sequence1))
+    return r.fullmatch(sequence2)
