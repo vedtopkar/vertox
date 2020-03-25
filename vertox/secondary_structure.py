@@ -31,13 +31,10 @@ def find_helices(pairs):
                     current_helix.append(bp)
                     previous = bp
                 else:  # non-consecutive bp
-                    print(current_helix)
                     helices.append(current_helix)
                     current_helix = [bp]
                     previous = bp
 
-        elif len(current_helix) > 1:
-            print(current_helix)
             helices.append(current_helix)
             current_helix = []
         else:

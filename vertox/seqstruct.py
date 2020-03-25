@@ -21,3 +21,7 @@ class SeqStruct:
         print(self.pairs)
         print(self.helices)
 
+    class SeqStructVariant:
+        # A type of SeqStruct that describes a sequence variant
+        def __init__(self):
+            pass

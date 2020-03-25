@@ -1,8 +1,9 @@
 from .linearfold import linearfold
 import random
-from .score_structure_perturbations import compute_bp_disruption, compute_edit_distance
+from .score_structure_perturbations import compute_bp_disruption, compute_bp_recovery, compute_edit_distance
 from .secondary_structure import find_pairs, find_helices
 
+import math
 import pandas as pd
 from p_tqdm import p_map
 
@@ -12,6 +13,13 @@ def stochastic_helix_remodeling(sequence, structure, helix, total_iterations):
 
     left_original = sequence[left_indices[0]:left_indices[1] + 1]
     right_original = sequence[right_indices[0]:right_indices[1] + 1]
+
+    # If we have too many iterations for a small helix we will effectively try all scrambles
+    # This will cause a problem when we generate the scrambles unless we adjust the number of iterations
+    # to be len(helix)! - 1
+    maximum_possible_scrambles = math.factorial(len(helix))
+    if total_iterations > maximum_possible_scrambles - 1:
+        total_iterations = maximum_possible_scrambles - 1
 
     # First we generate a bunch of scrambled sequences
     iterations = 0
@@ -27,39 +35,33 @@ def stochastic_helix_remodeling(sequence, structure, helix, total_iterations):
         if left_sequence != left_original and right_sequence != right_original:
             tmp_scrambled[left_indices[0]:left_indices[1] + 1] = left_sequence
             tmp_scrambled[right_indices[0]:right_indices[1] + 1] = right_sequence
-            scrambled_candidates.append(''.join(tmp_scrambled))
+            tmp_scrambled = ''.join(tmp_scrambled)
+            if tmp_scrambled not in scrambled_candidates:
+                scrambled_candidates.append(tmp_scrambled)
             iterations += 1
 
     # Then we fold each one and see what we get
+    # THIS IS THE EXPENSIVE/PARALLELIZED PART
     folded_scrambles = p_map(linearfold, scrambled_candidates)
     scrambled_structures, scrambled_energies = list(zip(*folded_scrambles))
 
+    # Compute the edit distance between the WT sequence and each scrambled variant
+    edit_distances = map(compute_edit_distance, [sequence]*len(scrambled_candidates), scrambled_candidates)
 
-
-    # Align each variant with the WT sequence and save the alignment scores
-    alignment_scores = p_map(nw.score_alignment, [sequence]*len(scrambled_candidates), scrambled_candidates)
-
-
-    return scrambled_candidates, scrambled_structures, scrambled_energies, alignment_scores
+    return scrambled_candidates, scrambled_structures, scrambled_energies, edit_distances
 
 
 def stochastic_helix_disruption(sequence, structure, helix, total_iterations):
-    # Generate a bunch of structures and score them based on how well they disrupt
-    scrambled_candidates, scrambled_structures, scrambled_energies, alignment_scores = stochastic_helix_remodeling(sequence,
-                                                                                                                   structure,
-                                                                                                                   helix,
-                                                                                                                   total_iterations)
 
-    # Then we score the disruption of each
-    # And also the degree to which the rest of the structure remains intact
-    WT_pairs = find_pairs(structure)
-    scrambled_edit_distances = [compute_edit_distance(sequence, s) for s in scrambled_candidates]
-    scrambled_recovery_scores = [compute_bp_recovery(WT_pairs, find_pairs(s), ignore_helix=helix) for s in
-                                 scrambled_structures]
+    # Generate a bunch of structures and score them based on how well they disrupt
+    scrambled_sequences, scrambled_structures, scrambled_energies, edit_distances = stochastic_helix_remodeling(sequence,
+                                                                                                                structure,
+                                                                                                                helix,
+                                                                                                                total_iterations)
 
     # Put results into a nice Pandas DataFrame, sort by disruption then recovery, and return the result
-    scrambled_disruption_results = [{'scrambled_disruption_sequence': scramble_seq,
-                                     'scrambled_disruption_structure': scramble_struct,
+    scrambled_disruption_results = [{'Scrambled Disruption Sequence': scramble_seq,
+                                     'Scrambled Disruption Structure': scramble_struct,
                                      'scrambled_disruption_energy': scramble_energy,
                                      'scrambled_alignment_score': alignment_score,
                                      'scrambled_edit_score': scramble_disruption,
