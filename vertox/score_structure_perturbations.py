@@ -1,5 +1,3 @@
-import regex
-
 def compute_bp_disruption(pairs1, pairs2, helix):
     """
     Counts up the number of bps that are disrupted

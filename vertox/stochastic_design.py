@@ -1,10 +1,8 @@
 from .linearfold import linearfold
 import random
-import multiprocessing
 from .score_structure_perturbations import compute_bp_disruption, compute_edit_distance
 from .secondary_structure import find_pairs, find_helices
 
-import nwalign3 as nw
 import pandas as pd
 from p_tqdm import p_map
 

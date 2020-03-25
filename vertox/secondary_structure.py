@@ -1,4 +1,3 @@
-
 def find_pairs(structure):
     stack = []
     pairs = [None]*len(structure)

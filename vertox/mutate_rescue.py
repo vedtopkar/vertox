@@ -1,24 +1,31 @@
-import subprocess
-import random
-from Bio.pairwise2 import format_alignment
 from .secondary_structure import find_pairs, find_helices, disrupt_helix_flip, recover_helix_flip
 from .score_structure_perturbations import compute_bp_disruption, compute_bp_recovery, compute_edit_distance
 from .linearfold import linearfold
 
-def generate_variant_dict(sequence, structure, variant_sequence):
+class SequenceVariant:
+    def __init__(self, WT_sequence, WT_structure):
+
+
+def generate_variant_dict(sequence, structure, variant_sequence,
+                          variant_structure=None, variant_type=None):
+    # Type can be mutate or rescue
+    assert variant_type is not None
+
     WT_pairs = find_pairs(sequence)
 
-    variant_folded = linearfold(right)
+    if variant_structure is None:
+        variant_structure = linearfold(right)
+
     variant_pairs = find_pairs(variant_sequence)
 
-    return variants.append({
+    return {
         'Sequence': variant_sequence,
-        'Structure': variant_folded[0],
+        'Structure': variant_structure[0],
         'Folding Energy': variant_folded[1],
         'Disruption Score': compute_bp_disruption(WT_pairs, variant_pairs),
         'Recovery Score': None,
         'Edit Distance': compute_edit_distance(sequence, left_flipped)
-    })
+    }
 
 def generate_mutate_rescue_library(sequence, structure, gc_rescue=True, iterations=500, stochastic_results=1):
     # Generate helix variants
