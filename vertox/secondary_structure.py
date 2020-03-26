@@ -1,3 +1,6 @@
+from .score_structure_perturbations import compute_edit_distance, compute_bp_recovery, compute_bp_disruption
+from .linearfold import linearfold
+
 def find_pairs(structure):
     stack = []
     pairs = [None]*len(structure)
@@ -34,11 +37,9 @@ def find_helices(pairs):
                     helices.append(current_helix)
                     current_helix = [bp]
                     previous = bp
-
+        elif len(current_helix) > 1:
             helices.append(current_helix)
             current_helix = []
-        else:
-            continue
     return helices
 
 
@@ -81,3 +82,20 @@ def recover_helix_flip(sequence, helix, gc_rescue=True):
     return ''.join(rescued)
 
 
+def generate_variant_dict(sequence, structure, variant_sequence, variant_structure, helix, ignore_helix=None):
+    # NOTE: variant_structure IS A [DOTBRACKET, ENERGY] list!
+    WT_pairs = find_pairs(structure)
+
+    if variant_structure is None:
+        variant_structure = linearfold(variant_sequence)
+
+    variant_pairs = find_pairs(variant_sequence)
+
+    return {
+        'Sequence': variant_sequence,
+        'Structure': variant_structure[0],
+        'Folding Energy': variant_structure[1],
+        'Disruption Score': compute_bp_disruption(WT_pairs, variant_pairs, helix),
+        'Recovery Score': compute_bp_recovery(WT_pairs, variant_pairs, ignore_helix=ignore_helix),
+        'Edit Distance': compute_edit_distance(sequence, variant_sequence)
+    }

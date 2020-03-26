@@ -5,10 +5,12 @@ from vertox.mutate_rescue import *
 sequence = 'TTCTAATACGACTCACTATAGGCCAAAGGCGTCGAGTAGACGCCAACAACGGAATTGCGGGAAAGGGGTCAACAGCCGTTCAGTACCAAGTCTCAGGGGAAACTTTGAGATGGCCTTGCAAAGGGTATGGTAATAAGCTGACGGACATGGTCCTAACCACGCAGCCAAGTCCTAAGTCAACAGATCTTCTGTTGATATGGATGCAGTTCAAAACCAAACCGTCAGCGAGTAGCTGACAAAAAGAAACAACAACAACAAC'
 structure ='...........................((((((.....))))))...........((((((...((((((.....(((.((((.(((..(((((((((....)))))))))..((.......))....)))......)))))))....))))))..)).))))((...((((...(((((((((...)))))))))..))))...)).............((((((.....))))))......................'
 
-pairs = find_pairs(structure)
-helices = find_helices(pairs)
+# sequence = 'AAAAAAAA'
+# structure = '(((..((..))..)))'
+# pairs = find_pairs(structure)
+# helices = find_helices(pairs)
+#
+# print(pairs)
+# print(helices)
 
-
-helix = helices[-2]
-
-generate_mutate_rescue_library(sequence, structure, iterations=100)
+generate_mutate_rescue_library(sequence, structure, total_iterations=25)

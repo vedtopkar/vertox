@@ -25,3 +25,4 @@ class SeqStruct:
         # A type of SeqStruct that describes a sequence variant
         def __init__(self):
             pass
+
