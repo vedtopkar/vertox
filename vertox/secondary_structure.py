@@ -90,9 +90,6 @@ def generate_variant_dict(sequence, structure, variant_sequence, variant_structu
         variant_structure = linearfold(variant_sequence)
 
     variant_pairs = find_pairs(variant_structure[0])
-    print(variant_sequence)
-    print(variant_structure)
-    print(variant_pairs)
 
     return {
         'Sequence': variant_sequence,
@@ -100,5 +97,6 @@ def generate_variant_dict(sequence, structure, variant_sequence, variant_structu
         'Folding Energy': variant_structure[1],
         'Disruption Score': compute_bp_disruption(WT_pairs, variant_pairs, helix),
         'Recovery Score': compute_bp_recovery(WT_pairs, variant_pairs, ignore_helix=ignore_helix),
-        'Edit Distance': compute_edit_distance(sequence, variant_sequence)
+        'Edit Distance': compute_edit_distance(sequence, variant_sequence),
+        'Helix': str(helix)
     }

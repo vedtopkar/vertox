@@ -1,4 +1,5 @@
 .DS_Store
+user/
 
 # Ignore user-created path file
 vertox/path.py
