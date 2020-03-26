@@ -14,10 +14,22 @@ def generate_mutate_rescue_library(sequence, structure, gc_rescue=True, total_it
     helices = find_helices(pairs)
 
     variants = []
+
+    # First we add the WT sequence to the list
+    WT_dict = {
+        'Sequence': sequence,
+        'Structure': structure,
+        'Variant Type': 'WT',
+        'Folding Energy': linearfold(sequence)[1]
+    }
+
+    variants.append(pd.DataFrame(WT_dict, index=[0]))
+
     print(helices)
     for helix in helices:
         if len(helix) >= min_helix_size:
             print('Generating mutate rescue for helix: {}'.format(helix))
+
             # Generate helix flip variants and add them to the list in the form of a DataFrame
             helix_flip_variants = generate_helix_flip_variants(sequence, structure, helix, gc_rescue=gc_rescue)
             variants.append(pd.DataFrame(helix_flip_variants))
@@ -34,7 +46,8 @@ def generate_mutate_rescue_library(sequence, structure, gc_rescue=True, total_it
             variants.append(stochastic_recovery_subset)
 
     variants = pd.concat(variants)
-    variants.to_csv('test_output.csv')
+
+    return variants
 
 def generate_helix_flip_variants(sequence, structure, helix, gc_rescue=True):
     # First we generate the helix flip disruption and recovery sequences
@@ -45,7 +58,7 @@ def generate_helix_flip_variants(sequence, structure, helix, gc_rescue=True):
     # Pop them into a variant dictionary for nice legible output
     left_flipped_dict = generate_variant_dict(sequence, structure, left_flipped_sequence, None, helix)
     right_flipped_dict = generate_variant_dict(sequence, structure, right_flipped_sequence, None, helix)
-    helix_flipped_rescue_dict = generate_variant_dict(sequence, structure, helix_rescue_sequence, None, helix, ignore_helix=helix)
+    helix_flipped_rescue_dict = generate_variant_dict(sequence, structure, helix_rescue_sequence, None, helix, ignore_helix=None)
 
     left_flipped_dict['Variant Type'] = 'Left Flip'
     right_flipped_dict['Variant Type'] = 'Right Flip'

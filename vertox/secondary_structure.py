@@ -89,7 +89,10 @@ def generate_variant_dict(sequence, structure, variant_sequence, variant_structu
     if variant_structure is None:
         variant_structure = linearfold(variant_sequence)
 
-    variant_pairs = find_pairs(variant_sequence)
+    variant_pairs = find_pairs(variant_structure[0])
+    print(variant_sequence)
+    print(variant_structure)
+    print(variant_pairs)
 
     return {
         'Sequence': variant_sequence,

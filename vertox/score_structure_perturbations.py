@@ -37,7 +37,18 @@ def compute_bp_recovery(pairs1, pairs2, ignore_helix=None, specific_helix=None, 
             recovered += 1
         elif pairs1[i] is None and pairs2[i] is not None:  # False positive
             recovered -= false_positive_penalty
-    return recovered / total_bps
+
+    # If there are no bps to recover in the first place...
+    # 1. If there are false positive bps in the variant then return the negative recovered value
+    # 2. If there are no false positives then return (the structure is correctly "recovered")
+    # 3. If there are bps then return the fraction recovered
+    if total_bps == 0.0:
+        if recovered < 0:
+            return recovered
+        else:
+            return 1.0
+    else:
+        return recovered / total_bps
 
 def compute_edit_distance(sequence1, sequence2):
     """
