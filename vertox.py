@@ -90,11 +90,12 @@ def main(config_filepath):
                                  library_parameters['three_prime_adapter']
 
     # Make sure everything is uppercase and that there are Ts not Us
-    ordering_sheet['Sequence'] = ordering_sheet['Sequence'].str.upper().replace('U', 'T')
+    ordering_sheet['Sequence'] = ordering_sheet['Sequence'].str.upper()
+    ordering_sheet['Sequence'] = ordering_sheet['Sequence'].str.replace('U', 'T')
 
     # Add pool name as experiment name and export
     ordering_sheet['Pool name'] = experiment_name
-    ordering_sheet.to_excel(os.path.join(output_folder, experiment_name + '_mutate_rescue_OPOOL_ORDERING.xlsx'), index=False)
+    ordering_sheet[['Pool name', 'Sequence']].to_excel(os.path.join(output_folder, experiment_name + '_mutate_rescue_OPOOL_ORDERING.xlsx'), index=False)
 
 
 if __name__ == '__main__':
